@@ -1,0 +1,69 @@
+version: '3.8'
+services:
+  gatoweb:
+    restart: unless-stopped
+    build: 
+      dockerfile: Dockerfile
+      context: ./flask-app
+    ports:
+      - 8888:5000
+
+  gatodb:
+    image: 'postgres:12-alpine'
+    volumes:
+      # Volumen util para realizar un backup de vez en cuando. Ejemplo
+      # pg_dump -U dongato gatabase -f /tmp/backup-gatabase-postgresql/gatabase-`date +%Y%m%d_%H%M%S`.backup
+      - /home/vantablack/backup-gatabase-postgresql:/tmp/backup-gatabase-postgresql
+ 
+      # Volume tipo managed - examinar su ruta a /var/lib/docker/volumes/ mediante
+      # docker volume ls y docker volume inspect
+      # Se usa así para evitar problemas de permisos locales (usuario) con
+      # los internos (usuario postgres)
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      # Puerto solo necesario para acceder desde afuera: Ej: un cliente pgAdmin.
+      # Ejemplo: https://linuxhint.com/run_postgresql_docker_compose/
+      - 5432:5432
+    environment:
+      # Cambiamos los valores por defecto
+      # POSTGRES_USER: postgres
+      #
+      # Específicamos base y usuario, la base por defecto postgres
+      # es incomoda para restaurar si ya está abierta para sus propios
+      # asuntos internos
+      POSTGRES_USER: dongato
+      POSTGRES_PASSWORD: ysupandilla
+      POSTGRES_DB: gatabase
+  
+  adminer:
+    # Util para examinar las bases usar en lugar en lugar de pgadmin4 / mysql-workbench
+    # Porque requieren descomentar los puertos y reiniciar las bases. Éste se conecta
+    # por dentro de la red interna de esta capa de contenedores
+    #
+    # Ejemplo de Login
+    # Motor de base de datos: PostgreSQL (u otros, probarlos)
+    # Servidor: postgres-ipcl
+    # Usuario: postgres
+    # Contraseña: ********
+    # Base de datos: ipcl_dev
+    image: adminer
+    # restart: always
+    ports:
+      - 8090:8080
+ 
+  portainer: # https://portainer.readthedocs.io/en/stable/deployment.html
+    # admin / N******1
+    image: portainer/portainer
+    command: -H unix:///var/run/docker.sock
+    # restart: always
+    ports:
+      - 9000:9000
+      - 8000:8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  postgres_data:
+  portainer_data:
+  
