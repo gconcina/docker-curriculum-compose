@@ -31,6 +31,9 @@ services:
       # Específicamos base y usuario, la base por defecto postgres
       # es incomoda para restaurar si ya está abierta para sus propios
       # asuntos internos
+      environment:
+      
+      PGPORT: 5433
       POSTGRES_USER: dongato
       POSTGRES_PASSWORD: ysupandilla
       POSTGRES_DB: gatabase
