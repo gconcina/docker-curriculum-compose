@@ -23,7 +23,7 @@ services:
     ports:
       # Puerto solo necesario para acceder desde afuera: Ej: un cliente pgAdmin.
       # Ejemplo: https://linuxhint.com/run_postgresql_docker_compose/
-      - 5432:5432
+      - 5433:5432
     environment:
       # Cambiamos los valores por defecto
       # POSTGRES_USER: postgres
